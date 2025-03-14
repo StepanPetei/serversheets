@@ -1,0 +1,18 @@
+Internet
+   |
+   v
+  +----------+
+  |   NGINX  |  <== Proxy reverso + HTTPS (80/443)
+  +----------+
+     |     |
+     |     +--> WordPress (contenedor)
+     |
+     +--> phpMyAdmin (contenedor)
+
+/tu-proyecto
+├── docker-compose.yml
+├── nginx
+│   ├── conf.d
+│   │   ├── wordpress.conf
+│   │   └── phpmyadmin.conf
+└── data (opcional para persistencia)

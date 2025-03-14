@@ -1,0 +1,19 @@
+Internet
+   |
+   v
+  +----------+
+  |   NGINX  | <== Proxy Reverso + HTTPS (80/443)
+  +----------+
+   |   |   |
+   |   |   +--> WordPress (contenedor)
+   |   +--> phpMyAdmin (contenedor)
+   +--> Odoo (contenedor)
+
+/wordpress-stack
+├── docker-compose.yml
+├── nginx
+│   ├── conf.d
+│   │   ├── wordpress.conf
+│   │   ├── phpmyadmin.conf
+│   │   └── odoo.conf
+└── data (persistencia opcional)

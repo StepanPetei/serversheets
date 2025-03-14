@@ -1,0 +1,84 @@
+version: '3.9'
+
+services:
+  wordpress:
+      image: wordpress:latest
+          container_name: wordpress
+              restart: always
+                  environment:
+                        WORDPRESS_DB_HOST: db:3306
+                              WORDPRESS_DB_NAME: wordpress
+                                    WORDPRESS_DB_USER: wpuser
+                                          WORDPRESS_DB_PASSWORD: wppassword
+                                              networks:
+                                                    - internal
+                                                        volumes:
+                                                              - wordpress_data:/var/www/html
+
+                                                                db:
+                                                                    image: mysql:8.0
+                                                                        container_name: mysql
+                                                                            restart: always
+                                                                                environment:
+                                                                                      MYSQL_DATABASE: wordpress
+                                                                                            MYSQL_USER: wpuser
+                                                                                                  MYSQL_PASSWORD: wppassword
+                                                                                                        MYSQL_ROOT_PASSWORD: rootpassword
+                                                                                                            networks:
+                                                                                                                  - internal
+                                                                                                                      volumes:
+                                                                                                                            - db_data:/var/lib/mysql
+                                                                                                                                command: --default-authentication-plugin=mysql_native_password
+
+                                                                                                                                  phpmyadmin:
+                                                                                                                                      image: phpmyadmin/phpmyadmin
+                                                                                                                                          container_name: phpmyadmin
+                                                                                                                                              restart: always
+                                                                                                                                                  depends_on:
+                                                                                                                                                        - db
+                                                                                                                                                            environment:
+                                                                                                                                                                  PMA_HOST: db
+                                                                                                                                                                        PMA_USER: root
+                                                                                                                                                                              PMA_PASSWORD: rootpassword
+                                                                                                                                                                                  networks:
+                                                                                                                                                                                        - internal
+
+                                                                                                                                                                                          nginx:
+                                                                                                                                                                                              image: nginx:latest
+                                                                                                                                                                                                  container_name: nginx
+                                                                                                                                                                                                      restart: always
+                                                                                                                                                                                                          ports:
+                                                                                                                                                                                                                - "80:80"
+                                                                                                                                                                                                                      - "443:443"
+                                                                                                                                                                                                                          volumes:
+                                                                                                                                                                                                                                - ./nginx/conf.d:/etc/nginx/conf.d
+                                                                                                                                                                                                                                      - certbot-etc:/etc/letsencrypt
+                                                                                                                                                                                                                                            - certbot-var:/var/lib/letsencrypt
+                                                                                                                                                                                                                                                  - ./nginx/html:/usr/share/nginx/html
+                                                                                                                                                                                                                                                      depends_on:
+                                                                                                                                                                                                                                                            - wordpress
+                                                                                                                                                                                                                                                                  - phpmyadmin
+                                                                                                                                                                                                                                                                      networks:
+                                                                                                                                                                                                                                                                            - internal
+                                                                                                                                                                                                                                                                                  - external
+
+                                                                                                                                                                                                                                                                                    certbot:
+                                                                                                                                                                                                                                                                                        image: certbot/certbot
+                                                                                                                                                                                                                                                                                            container_name: certbot
+                                                                                                                                                                                                                                                                                                volumes:
+                                                                                                                                                                                                                                                                                                      - certbot-etc:/etc/letsencrypt
+                                                                                                                                                                                                                                                                                                            - certbot-var:/var/lib/letsencrypt
+                                                                                                                                                                                                                                                                                                                  - ./nginx/html:/usr/share/nginx/html
+                                                                                                                                                                                                                                                                                                                      entrypoint: "/bin/sh -c 'trap exit TERM; while :; do sleep 6h & wait $${!}; certbot renew; done'"
+                                                                                                                                                                                                                                                                                                                          networks:
+                                                                                                                                                                                                                                                                                                                                - external
+
+                                                                                                                                                                                                                                                                                                                                volumes:
+                                                                                                                                                                                                                                                                                                                                  wordpress_data:
+                                                                                                                                                                                                                                                                                                                                    db_data:
+                                                                                                                                                                                                                                                                                                                                      certbot-etc:
+                                                                                                                                                                                                                                                                                                                                        certbot-var:
+
+                                                                                                                                                                                                                                                                                                                                        networks:
+                                                                                                                                                                                                                                                                                                                                          internal:
+                                                                                                                                                                                                                                                                                                                                            external:

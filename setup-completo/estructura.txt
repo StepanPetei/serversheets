@@ -1,0 +1,13 @@
+wordpress-stack/
+├── docker-compose.yml
+├── nginx/
+│   ├── conf.d/
+│   │   ├── wordpress.conf
+│   │   ├── phpmyadmin.conf
+│   │   ├── odoo.conf
+│   │   └── portainer.conf
+│   └── html/
+├── scripts/
+│   ├── 01-deploy.sh
+│   ├── 02-certbot.sh
+│   └── 03-nginx-https.sh
